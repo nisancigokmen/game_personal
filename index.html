@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Introduction Adventure</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; }
+        canvas { border: 2px solid #fff; }
+        #info { position: absolute; top: 10px; left: 10px; color: white; font-family: Arial, sans-serif; width: 300px; }
+    </style>
+</head>
+<body>
+    <div id="info"></div>
+    <script>
+        let player;
+        let areas = [];
+        let currentInfo = "Use arrow keys to drive your car and explore different areas to learn about me!";
+
+        function setup() {
+            createCanvas(800, 600);
+            player = new Player(width / 2, height / 2);
+            // Customize these areas with your personal information
+            areas.push(new InfoArea(100, 100, 60, 60, "About Me", "Hi! I'm [Your Name], a passionate developer and game enthusiast from [Your Location]. I love creating interactive experiences."));
+            areas.push(new InfoArea(600, 100, 60, 60, "Skills", "Proficient in JavaScript, Python, and web development. Experienced with p5.js for games and HTML/CSS for sites."));
+            areas.push(new InfoArea(100, 400, 60, 60, "Hobbies", "In my free time, I enjoy hiking, reading sci-fi novels, and playing video games."));
+            areas.push(new InfoArea(600, 400, 60, 60, "Contact", "Reach me at [your.email@example.com] or connect on LinkedIn: [your-linkedin-profile]."));
+        }
+
+        function draw() {
+            background(100, 150, 100); // Greenish background like a map or field
+            player.update();
+            player.show();
+            let inArea = false;
+            for (let area of areas) {
+                area.show();
+                if (area.contains(player.x, player.y)) {
+                    currentInfo = `${area.title}: ${area.info}`;
+                    inArea = true;
+                }
+            }
+            if (!inArea) {
+                currentInfo = "Drive to an area to learn more!";
+            }
+            select('#info').html(currentInfo);
+        }
+
+        function keyPressed() {
+            if (keyCode === LEFT_ARROW) player.setDir(-1, 0);
+            else if (keyCode === RIGHT_ARROW) player.setDir(1, 0);
+            else if (keyCode === UP_ARROW) player.setDir(0, -1);
+            else if (keyCode === DOWN_ARROW) player.setDir(0, 1);
+        }
+
+        function keyReleased() {
+            if (keyCode === LEFT_ARROW || keyCode === RIGHT_ARROW) player.setDir(0, player.dy);
+            if (keyCode === UP_ARROW || keyCode === DOWN_ARROW) player.setDir(player.dx, 0);
+        }
+
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.dx = 0;
+                this.dy = 0;
+                this.speed = 5;
+            }
+
+            setDir(dx, dy) {
+                this.dx = dx;
+                this.dy = dy;
+            }
+
+            update() {
+                this.x += this.dx * this.speed;
+                this.y += this.dy * this.speed;
+                this.x = constrain(this.x, 0, width);
+                this.y = constrain(this.y, 0, height);
+            }
+
+            show() {
+                push();
+                translate(this.x, this.y);
+                // Simple car drawing: body and wheels
+                fill(0, 0, 255); // Blue body
+                rect(-20, -10, 40, 20); // Car body
+                fill(0); // Black wheels
+                ellipse(-15, 10, 10, 10); // Rear wheel
+                ellipse(15, 10, 10, 10); // Front wheel
+                pop();
+            }
+        }
+
+        class InfoArea {
+            constructor(x, y, w, h, title, info) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.title = title;
+                this.info = info;
+            }
+
+            show() {
+                fill(255, 255, 0, 150); // Yellowish area
+                rect(this.x, this.y, this.w, this.h);
+                fill(0);
+                textAlign(CENTER, CENTER);
+                textSize(12);
+                text(this.title, this.x + this.w / 2, this.y + this.h / 2);
+            }
+
+            contains(px, py) {
+                return px > this.x && px < this.x + this.w && py > this.y && py < this.y + this.h;
+            }
+        }
+    </script>
+</body>
+</html>
